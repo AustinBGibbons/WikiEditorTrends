@@ -12,7 +12,9 @@ editorCommits = {}
 for line in sys.stdin :
 	line = line.strip('\n')
 	line = line.split('\t')
-	#print line
-	editorCommits[line[0]] = len(line)-1
+	user = line[0]
+	if user not in editorCommits : editorCommits[user] = 0
+	editorCommits[user] = editorCommits[user] + 1
 
-print editorCommits
+for k in editorCommits : 
+	print k+'\t'+str(editorCommits[k])
