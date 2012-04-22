@@ -9,11 +9,14 @@ import sys
 #count the commits per editor
 editorCommits = {}
 
+pageInfo = []
+
 for line in sys.stdin :
 	line = line.strip('\n')
 	line = line.split('\t')
-	user = line[0]
+	page = line[0]
 	if user not in editorCommits : editorCommits[user] = 0
+	pageInfo
 	editorCommits[user] = editorCommits[user] + 1
 
 for k in editorCommits : 
