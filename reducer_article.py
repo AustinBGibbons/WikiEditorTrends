@@ -6,6 +6,12 @@ import sys
 	see map.py
 '''
 
+# Schema defined at : 
+#https://github.com/whym/RevDiffSearch/blob/master/README.rst
+get = {'rev_id':0, 'page_id':1, 'namespace':2, 'title':3, 'timestamp':4,
+'comment':5, 'minor':6, 'page_id':7, 'page_text':8, 'added_size':9,
+'removed_size':10, 'added':11, 'removed':12, 'action':13}
+
 #count the commits per editor
 editorCommits = {}
 
