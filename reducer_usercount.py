@@ -12,6 +12,7 @@ editorCommits = {}
 for line in sys.stdin :
 	line = line.strip('\n')
 	line = line.split('\t')
+	#print line
 	editorCommits[line[0]] = len(line)-1
 
 print editorCommits
