@@ -34,19 +34,32 @@ def processAndOutput(user, revisions):
 		pages.add(revision['page_id'])
 	output.append(str(len(pages)))
 
-	# number of additions and removals
+	# additions and removals
 	numAdditions = 0
 	numRemovals = 0
+	charsAdded = 0
+	charsRemoved = 0
 	for rev_id in revisions:
 		revision = revisions[rev_id]
 		diffs = parseDiffs(revision['user_text'])
 		for diff in diffs:
 			if diff['type'] == 'ADD':
 				numAdditions = numAdditions + 1
+				charsAdded = charsAdded + len(diff['text'])
 			else:
 				numRemovals = numRemovals + 1
+				charsRemoved = charsRemoved + len(diff['text'])
 	output.append(str(numAdditions))
+	output.append(str(charsAdded))
 	output.append(str(numRemovals))
+	output.append(str(charsRemoved))
+
+	# length of comments
+	commentLength = 0
+	for rev_id in revisions:
+		revision = revisions[rev_id]
+		commentLength = commentLength + len(revision['comment'])
+	output.append(str(commentLength))
 
 	print '\t'.join(output)
 
