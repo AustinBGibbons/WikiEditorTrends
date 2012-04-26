@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 import sys
+from sets import Set
 
 '''
-        @author : gibbons4
+        @author : davidvetrano
 	see map.py
 '''
 
@@ -11,38 +12,39 @@ import sys
 get = {'rev_id':0, 'page_id':1, 'namespace':2, 'title':3, 'timestamp':4,
 'comment':5, 'minor':6, 'user_id':7, 'user_text':8}
 
+def processAndOutput(page, pageInfo):
+	output = [ page ]
+
+	# number of unique registered users
+	users = Set()
+	for rev_id in pageInfo:
+		revision = pageInfo[rev_id]
+		user = revision['user_id']
+		if user != 'None': users.add(user)
+	output.append(str(len(users)))
+
+	print '\t'.join(output)
 
 pageInfo = {}
 lastPage = -1
 
 for line in sys.stdin :
-	print line
-	line = line.strip('\n')
-	line = line.split('\t')
+	line = line.strip('\n').split('\t')
 
-	# collect edit info for a page
-	page = line[0]
-	user = line[get['user_id']+1]
-	rev = line[get['rev_id']+1]
-	processPage = False
+	# gather article statistics and output
+	page = line[get['page_id']+1]
 	if lastPage != page:
+		if lastPage < 0:
+			lastPage = page
+			continue
+		processAndOutput(page, pageInfo)
 		lastPage = page
-		processPage = True
-
-	# gather article statistics
-	if processPage:
-		for user_id in pageInfo:
-			pageInfo['shit']='empty'
 		pageInfo = {}
 
-	# output edit statistics			 
-	for rev in pageInfo: 
-		print rev+'\t'+str(pageInfo[rev])
-
+	# collect edit info for a revision
+	rev = line[get['rev_id']+1]
 	editInfo = {}
 	for key in get:
-		print line
-		print key
 		editInfo[key] = line[get[key]+1]
 	pageInfo[rev] = editInfo
 
