@@ -14,7 +14,7 @@ get = {'rev_id':0, 'page_id':1, 'namespace':2, 'title':3, 'timestamp':4,
 for line in sys.stdin:
 	line = line.strip('\n')
 	fields = line.split('\t')
-	page = fields[get['page_id']]
-	if page != 'None' :
-		print  page + '\t' + line
+	user = fields[get['user_id']]
+	if user != 'None' :
+		print  user + '\t' + line
 
