@@ -4,7 +4,6 @@ if [ -z "$1" ]; then
 	echo "usage: $0 [mapreduce output suffix]"
 	exit 
 fi
-echo "Assemble output for $1"
 
 if [ -d "parts/" ]; then
 	rm -rf parts/
@@ -16,4 +15,4 @@ s3cmd sync "s3://diffdb-output/output-$1/" parts/
 
 echo "Assemble"
 cat parts/* > "./dataset-$1.tsv"
-rm -rd parts/
+rm -rf parts/
