@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import sys
-from sets import Set
 
 '''
         @author : davidvetrano
@@ -28,7 +27,7 @@ def processAndOutput(user, revisions):
 	output = [ user ]
 
 	# number of pages touched
-	pages = Set()
+	pages = set()
 	for rev_id in revisions:
 		revision = revisions[rev_id]
 		pages.add(revision['page_id'])
