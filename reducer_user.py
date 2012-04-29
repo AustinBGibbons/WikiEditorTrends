@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+from datetime import datetime
 
 '''
         @author : davidvetrano
@@ -60,21 +61,54 @@ def processAndOutput(user, revisions):
 		commentLength = commentLength + len(revision['comment'])
 	output.append(str(commentLength))
 
-	print '\t'.join(output)
+	#print '\t'.join(output)
 
 revisions = {}
 lastUser = -1
 
+def getSemesters(date) :
+	semesters = []
+	for i in range(int(date.month), int(date.month)+6) :
+		year = int(date.year)
+		if i > 12 :
+			year = year + 1
+		semesters.append(str(year)+str(i % 12))
+	return semesters
+
+#group each revision into its time intervals
+#for example, 6 month histories put an edit in
+#6 different times (an edit in feb. appears in
+#feb, march, april, may, june, july
+def sortByTime(user, revisions) :
+	timeRevisions = {}
+	for rev in revisions :
+		unixtime = revisions[rev]['timestamp']
+		date = datetime.fromtimestamp(int(unixtime))
+		semesters = getSemesters(date)
+		for sem in semesters :
+			semester = str(user) + '-' + sem
+			if semester not in timeRevisions :
+				timeRevisions[semester] = {}
+			timeRevisions[semester][rev] = revisions[rev]
+	
+	return timeRevisions
+
 for line in sys.stdin :
 	line = line.strip('\n').split('\t')
-
 	user = line[0]
+	print user
 	if lastUser != user:
 		if lastUser < 0:
 			lastUser = user
 			continue
-		# process all revisions for a user
-		processAndOutput(user, revisions)
+
+		# process each revision into time-intervals
+		timeRevisions = sortByTime(user, revisions)
+
+		for rev in timeRevisions :	
+			# process all revisions for a user
+			processAndOutput(rev, timeRevisions[rev])
+
 		lastUser = user
 		revisions = {}
 
