@@ -13,12 +13,18 @@ if os.path.isdir(directory) :
 os.mkdir(directory)
 
 fileList = {}
+bad = 0
 for line in orig :
 	line.rstrip('\n')
 	(user, tab, data) = line.partition('\t')
+	if '-' not in user :
+		bad = bad +1
+		continue
 	(user, date) = user.split('-')
 	date = directory + date + '.tsv'
 	if date not in fileList :
 		dateFile = open(date, 'w+')
 		fileList[date] = dateFile
 	fileList[date].write(user+'\t'+data)
+
+print 'bad values: ', bad
