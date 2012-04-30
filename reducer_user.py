@@ -61,7 +61,7 @@ def processAndOutput(user, revisions):
 		commentLength = commentLength + len(revision['comment'])
 	output.append(str(commentLength))
 
-	#print '\t'.join(output)
+	print '\t'.join(output)
 
 revisions = {}
 lastUser = -1
@@ -96,7 +96,7 @@ def sortByTime(user, revisions) :
 for line in sys.stdin :
 	line = line.strip('\n').split('\t')
 	user = line[0]
-	print user
+	#print user
 	if lastUser != user:
 		if lastUser < 0:
 			lastUser = user
