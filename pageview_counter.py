@@ -21,10 +21,30 @@ for line in view_counts :
 
 all_gzipped_files = os.listdir('../pageviews')
 
-def getName() :
+def getName(line) :
+	line = line.strip('\n')
+	line = line.split()
+	index = line[1].rfind('/')
+	#print line[1], index
+	if index != -1 : return line[1][index:], line[2]
+	return line[1], int(line[2])
 
 total_counts = {}
+found = 0
+missed = 0
 for fd in all_gzipped_files :
-	views = gzip.open('../pageviews/' + fd)
-	for line in views :
-		name = getName(line)
+	print 'started: ' , fd
+	views_file = gzip.open('../pageviews/' + fd)
+	for line in views_file :
+		#print line.rstrip('\n')
+		name, views = getName(line)
+		if name in creation_dates : 
+			if creation_dates[name] not in total_counts : total_counts[creation_dates[name]] = 0
+			total_counts[creation_dates[name]] += int(views)
+			found += int(views)
+		else :
+			missed += int(views)
+	print 'finished: ' , fd
+
+print found, views
+print total_counts
