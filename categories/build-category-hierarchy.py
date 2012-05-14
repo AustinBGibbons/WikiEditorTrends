@@ -2,30 +2,30 @@
 
 import sys
 
-cat_file = open(sys.argv[1], 'r')
-links_file = open(sys.argv[2], 'r')
+#cat_file = open(sys.argv[1], 'r')
+links_file = open(sys.argv[1], 'r')
 
-categories = {}
-bad_cats = 0
+#categories = {}
+#bad_cats = 0
 bad_cls = 0
 
-for line in cat_file:
-	cats = line[30:].split('),(')
-	for cat in cats:
-		if len(cat) == 0: continue
-		if cat[0] == '(':
-			cat = cat[1:]
-		if cat[-1] == ')':
-			cat = cat[0:-1]
-		cat = cat.split(',')
-		if len(cat) != 6:
-			bad_cats = bad_cats + 1
-			continue
-		categories[int(cat[0])] = cat[1][1:-1];
+#for line in cat_file:
+#	cats = line[30:].split('),(')
+#	for cat in cats:
+#		if len(cat) == 0: continue
+#		if cat[0] == '(':
+#			cat = cat[1:]
+#		if cat[-1] == ')':
+#			cat = cat[0:-1]
+#		cat = cat.split(',')
+#		if len(cat) != 6:
+#			bad_cats = bad_cats + 1
+#			continue
+#		categories[int(cat[0])] = cat[1][1:-1];
+#
+#cat_file.close()
 
-cat_file.close()
-
-print "Success! Loaded "+str(len(categories))+" categories. Ignored "+str(bad_cats)+" bad categories."
+#print "Success! Loaded "+str(len(categories))+" categories. Ignored "+str(bad_cats)+" bad categories."
 
 for line in links_file:
 	if line[0:11] != 'INSERT INTO': continue
@@ -42,8 +42,8 @@ for line in links_file:
 			bad_cls = bad_cls + 1
 			continue
 		
-		from_cat = int(cl[0])
-		if from_cat in categories:
-			print categories[from_cat] + ' -> ' + cl[1][1:-1]		
+		from_page = cl[0]
+		print from_page + '\t' + cl[1][1:-1]		
 
+links_file.close()
 
