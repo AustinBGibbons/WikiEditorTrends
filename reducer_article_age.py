@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from sets import Set
+
 
 '''
     @author : susan_biancani
@@ -12,13 +12,16 @@ from sets import Set
 get = {'rev_id':0, 'page_id':1, 'namespace':2, 'title':3, 'timestamp':4,
 'comment':5, 'minor':6, 'user_id':7, 'user_text':8}
 
-def processAndOutput(page, editTimes):
-    first = min(editTimes)
-    
-    for time in editTimes:
-        output = [ page, str(first) ]
-        output.append(str(time))
-        print '\t'.join(output)
+def processAndOutput(page, editTimes, timestamp):
+    if len(editTimes) == 0: 
+        print page, '\t', timestamp
+        return
+    else: 
+        first = min(editTimes)    
+        for time in editTimes:
+            output = [ page, str(first) ]
+            output.append(str(time))
+            print '\t'.join(output)
 
 editTimes = []
 lastPage = -1
@@ -28,11 +31,12 @@ for line in sys.stdin :
 
     # gather article statistics and output
     page = line[get['page_id']+1]
+    timestamp = line[get['timestamp']+1]
     if lastPage != page:
         if lastPage < 0:
             lastPage = page
             continue
-        processAndOutput(page, editTimes)
+        processAndOutput(page, editTimes, timestamp)
         lastPage = page
         editTimes = []
 
