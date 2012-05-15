@@ -17,9 +17,31 @@ for line in cat_file:
 
 	if relation == 'http://www.w3.org/2004/02/skos/core#broader' and firstCat != secondCat:
 		categoryMap[firstCat] = secondCat
-		#print firstCat + ' < ' + secondCat 
 
 cat_file.close()
+
+rootCats = set([
+	'Category:Agriculture',
+	'Category:Arts',
+	'Category:Belief',
+	'Category:Business',
+	'Category:Chronology',
+	'Category:Culture',
+	'Category:Education',
+	'Category:Environment',
+	'Category:Geography',
+	'Category:Health',
+	'Category:Humanities',
+	'Category:Language',
+	'Category:Law',
+	'Category:Life',
+	'Category:Mathematics',
+	'Category:Nature',
+	'Category:Politics',
+	'Category:Science',
+	'Category:Society',
+	'Category;Technology'	
+])
 
 def categoryToTopCategory(category):
 	visitedSet = set()
@@ -27,14 +49,13 @@ def categoryToTopCategory(category):
 	prev = None
 
 	while curr in categoryMap:
-		if curr == 'Category:Main_topic_classifications':
+		if curr in rootCats:
 			return prev
 
 		if curr in visitedSet:
 			return None
 
 		visitedSet.add(curr)
-
 		prev = curr
 		curr = categoryMap[curr]
 	
