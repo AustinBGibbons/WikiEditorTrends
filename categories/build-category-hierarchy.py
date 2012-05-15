@@ -2,30 +2,46 @@
 
 import sys
 
-#cat_file = open(sys.argv[1], 'r')
-links_file = open(sys.argv[1], 'r')
+cat_file = open(sys.argv[1], 'r')
+links_file = open(sys.argv[2], 'r')
 
-#categories = {}
-#bad_cats = 0
+categoryMap = {}
 bad_cls = 0
 
-#for line in cat_file:
-#	cats = line[30:].split('),(')
-#	for cat in cats:
-#		if len(cat) == 0: continue
-#		if cat[0] == '(':
-#			cat = cat[1:]
-#		if cat[-1] == ')':
-#			cat = cat[0:-1]
-#		cat = cat.split(',')
-#		if len(cat) != 6:
-#			bad_cats = bad_cats + 1
-#			continue
-#		categories[int(cat[0])] = cat[1][1:-1];
-#
-#cat_file.close()
+for line in cat_file:
+	cats = line.split(' ')
+	
+	firstCat = cats[0][29:-1]
+	secondCat = cats[2][29:-1]
+	relation = cats[1][1:-1]
 
-#print "Success! Loaded "+str(len(categories))+" categories. Ignored "+str(bad_cats)+" bad categories."
+	if relation == 'http://www.w3.org/2004/02/skos/core#broader' and firstCat != secondCat:
+		categoryMap[firstCat] = secondCat
+		#print firstCat + ' < ' + secondCat 
+
+cat_file.close()
+
+def categoryToTopCategory(category):
+	visitedSet = set()
+	curr = category
+	prev = None
+
+	while curr in categoryMap:
+		if curr == 'Category:Main_topic_classifications':
+			return prev
+
+		if curr in visitedSet:
+			return None
+
+		visitedSet.add(curr)
+
+		prev = curr
+		curr = categoryMap[curr]
+	
+	return None
+
+#print "Success! Loaded "+str(len(categoryMap))+" category relations."
+#exit(0)
 
 for line in links_file:
 	if line[0:11] != 'INSERT INTO': continue
@@ -43,7 +59,9 @@ for line in links_file:
 			continue
 		
 		from_page = cl[0]
-		print from_page + '\t' + cl[1][1:-1]		
+		topCat = categoryToTopCategory('Category:'+cl[1][1:])
+		if topCat is not None:
+			print from_page + '\t' + topCat
 
 links_file.close()
 
