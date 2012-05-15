@@ -11,7 +11,7 @@ fi
 
 echo "Sync directory"
 mkdir parts
-s3cmd sync "s3://diffdb-output/output-$1/" parts/
+s3cmd sync "s3://pageview-output/output-$1/" parts/
 
 echo "Assemble"
 cat parts/* > "./dataset-$1.tsv"
