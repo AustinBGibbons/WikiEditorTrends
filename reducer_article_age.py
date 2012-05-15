@@ -25,8 +25,10 @@ def processAndOutput(page, editTimes, timestamp):
 
 editTimes = []
 lastPage = -1
-
+#filename = "C:/Users/Susan/Documents/CS341/WikiEditor/subset_test.txt"
+#data = open(filename)
 for line in sys.stdin :
+#for line in data.readlines():
     line = line.strip('\n').split('\t')
 
     # gather article statistics and output
@@ -35,12 +37,14 @@ for line in sys.stdin :
     if lastPage != page:
         if lastPage < 0:
             lastPage = page
-            continue
-        processAndOutput(page, editTimes, timestamp)
-        lastPage = page
-        editTimes = []
+        else:
+            processAndOutput(lastPage, editTimes, timestamp)
+            lastPage = page
+            editTimes = []
 
     # collect edit time for a revision
     editTimes.append(int(line[get['timestamp']+1] ))
     
+processAndOutput(page, editTimes, timestamp)
 
+#data.close()
