@@ -1,5 +1,12 @@
 import gzip, os, sys
-#from datetime import datetime
+
+'''
+	@author gibbons4
+	May 11, 2012
+	Finds the month, year an article was created
+	Counts pageviews per month.
+	prints hash screen in ugly format
+'''
 
 #20011011201847
 def getDate(ts) :
@@ -9,6 +16,7 @@ def getDate(ts) :
 view_counts = open('../en_created_cats.tab', 'r')
 #Title -> Creation_Dates
 creation_dates = {}
+creation_counts = {}
 flag = 1
 for line in view_counts :
 	if flag is 1 :
@@ -18,6 +26,13 @@ for line in view_counts :
 	line = line.split('\t')
 	year, month = getDate(line[1])
 	creation_dates[line[0]] = str(year) + str(month)
+	if year not in creation_counts :
+		creation_counts[year] = 0
+	creation_counts[year] += 1
+
+for k in creation_counts :
+	print k, creation_counts[k]
+sys.exit()
 
 all_gzipped_files = os.listdir('../pageviews')
 
@@ -46,5 +61,5 @@ for fd in all_gzipped_files :
 			missed += int(views)
 	print 'finished: ' , fd
 
-print found, views
+print found, missed
 print total_counts
