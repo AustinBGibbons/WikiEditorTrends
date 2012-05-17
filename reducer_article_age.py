@@ -37,10 +37,10 @@ get = {'rev_id':0, 'page_id':1, 'namespace':2, 'title':3, 'timestamp':4,
 weeks = {}
 editTimes = []
 lastPage = -1
-filename = "C:/Users/Susan/Documents/CS341/WikiEditor/subset_test.txt"
-data = open(filename)
-for line in data.readlines():
-#for line in sys.stdin :
+#filename = "C:/Users/Susan/Documents/CS341/WikiEditor/subset_test.txt"
+#data = open(filename)
+#for line in data.readlines():
+for line in sys.stdin :
     line = line.strip('\n').split('\t')
 
     # gather article statistics and output
@@ -65,4 +65,4 @@ for week in weeks:
     output = [str(week)] + [str(w) for w in weeks[week]]
     print '\t'.join(output)
 
-data.close()
+#data.close()
