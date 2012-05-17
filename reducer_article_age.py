@@ -14,6 +14,8 @@ def findFirstEdit(editTimes):
     return min(editTimes)
 
 def collectWeekData(weeks, editTimes):
+    if len(editTimes) == 0:
+        return
     firstEdit = findFirstEdit(editTimes)
     for edit in editTimes:
         age = edit - firstEdit
