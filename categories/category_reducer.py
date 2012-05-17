@@ -3,8 +3,11 @@ import sys
 
 article_id = None
 article_cats = set()
-for line in sys.stdin :
+for line in sys.stdin:
 	line  = line.rstrip('\n').split('\t')
+	if len(line) != 2:
+		print "here"
+		continue
 
 	prev_article_id = article_id	
 	article_id = line[0]
