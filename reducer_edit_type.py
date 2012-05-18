@@ -71,7 +71,6 @@ for line in sys.stdin :
             lastPage = page
         else:
             collectWeekData(firstEdit, editData, weeks)
-            print editData
             lastPage = page
             editData=[]
             firstEdit = float('inf')
@@ -84,11 +83,11 @@ for line in sys.stdin :
     editData.append([weekTimestamp] + parseDiffs(userText))
 
 collectWeekData(firstEdit, editData, weeks)
-print editData
+
 """ an entry in weeks is: counts of [articles edited, edits, adds, dels],sum and sumsq of [added words, deleted words, net added]"""
 
 for week in weeks:
     output = [str(week)] + [str(w) for w in weeks[week]]
-    print '\t'.join(output)
+    print '\t'.join(output), '\n'
 
 #data.close()
