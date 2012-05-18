@@ -22,10 +22,9 @@ def parseDiffs(diffs):
         if diffParts[1] == '1':
             numAdds += 1
             lenAdd += len(text)
-        else:
+        elif diffParts[1] == '-1':
             numDels += 1
             lenDel += len(text)
-        
     return [numAdds, numDels, lenAdd, lenDel]
 
 def collectWeekData(firstEdit, editData, weeks):
@@ -88,6 +87,6 @@ collectWeekData(firstEdit, editData, weeks)
 
 for week in weeks:
     output = [str(week)] + [str(w) for w in weeks[week]]
-    print '\t'.join(output), '\n'
+    #print '\t'.join(output), '\n'
 
 #data.close()
