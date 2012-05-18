@@ -5,9 +5,7 @@ SECONDS_PER_WEEK = 60*60*24*7
 
 '''
     @author : susan_biancani
-    outputs tab delimited text: week, summary stats for age of edits in that week
-    summary stats = count, sum, sumsq
-    (Using count, sum, sumsq, you can calculate mean, st dev)
+    outputs tab delimited text: week, counts of [articles edited, adds, dels],sum and sumsq of [added words, deleted words, net added]
 '''
 def parseDiffs(diffs):
     numAdds = numDels = lenAdd = lenDel = 0
@@ -25,28 +23,30 @@ def parseDiffs(diffs):
         elif diffParts[1] == '-1':
             numDels += 1
             lenDel += len(text)
+        else:
+            sys.stderr.write("Unknown edit type: " + diff)
+
     return [numAdds, numDels, lenAdd, lenDel]
 
-def collectWeekData(firstEdit, editData, weeks):
+def collectWeekData(editData, weeks):
     """ an entry in weeks is: counts of [articles edited, adds, dels],sum and sumsq of [added words, deleted words, net added]"""
     assert len(editData) > 0 
-    assert firstEdit != float('inf')
         
     for edit in editData:
         week, numAdds, numDels, lenAdd, lenDel = edit
-        age = week - firstEdit
+        #age = week - firstEdit
         netAdd = lenAdd - lenDel
-        if not weeks.has_key(age):
-            weeks[age] = [0.0]*9
-        weeks[age][0] += 1
-        weeks[age][1] += numAdds
-        weeks[age][2] += numDels
-        weeks[age][3] += lenAdd
-        weeks[age][4] += lenAdd*lenAdd
-        weeks[age][5] += lenDel
-        weeks[age][6] += lenDel*lenDel
-        weeks[age][7] += netAdd
-        weeks[age][8] += netAdd*netAdd
+        if not weeks.has_key(week):
+            weeks[week] = [0.0]*9
+        weeks[week][0] += 1
+        weeks[week][1] += numAdds
+        weeks[week][2] += numDels
+        weeks[week][3] += lenAdd
+        weeks[week][4] += lenAdd*lenAdd
+        weeks[week][5] += lenDel
+        weeks[week][6] += lenDel*lenDel
+        weeks[week][7] += netAdd
+        weeks[week][8] += netAdd*netAdd
          
 # Schema defined at : 
 #https://github.com/whym/RevDiffSearch/blob/master/README.rst
@@ -54,8 +54,8 @@ get = {'rev_id':0, 'page_id':1, 'namespace':2, 'title':3, 'timestamp':4,
 'comment':5, 'minor':6, 'user_id':7, 'user_text':8}
 
 editData = []
-firstEdit = float('inf')
-lastPage = -1
+#firstEdit = float('inf')
+lastWeek = -1
 weeks = {}
 #filename = "C:/Users/Susan/Documents/CS341/WikiEditor/subset_test.txt"
 #data = open(filename)
@@ -64,24 +64,22 @@ for line in sys.stdin :
     line = line.strip('\n').split('\t')
 
     # gather article statistics and output
-    page = line[get['page_id']+1]
-    if lastPage != page:
-        if lastPage < 0:
-            lastPage = page
+    week = line[0]
+    if lastWeek != week:
+        if lastWeek < 0:
+            lastWeek = week
         else:
-            collectWeekData(firstEdit, editData, weeks)
-            lastPage = page
+            collectWeekData(editData, weeks)
+            lastWeek = week
             editData=[]
-            firstEdit = float('inf')
+            #firstEdit = float('inf')
             
     # collect data on each revision       
-    weekTimestamp = int(line[get['timestamp']+1])/SECONDS_PER_WEEK
-    if weekTimestamp < firstEdit:
-        firstEdit = weekTimestamp
+    #weekTimestamp = int(line[get['timestamp']+1])/SECONDS_PER_WEEK
     userText = [ line[i] for i in range(get['user_text']+1, len(line)-1) ]
-    editData.append([weekTimestamp] + parseDiffs(userText))
+    editData.append([week] + parseDiffs(userText))
 
-collectWeekData(firstEdit, editData, weeks)
+collectWeekData(editData, weeks)
 
 """ an entry in weeks is: counts of [articles edited, edits, adds, dels],sum and sumsq of [added words, deleted words, net added]"""
 
