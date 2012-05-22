@@ -83,7 +83,7 @@ for line in sys.stdin :
     # collect data on each revision       
     #weekTimestamp = int(line[get['timestamp']+1])/SECONDS_PER_WEEK
     userText = [ line[i] for i in range(get['user_text']+1, len(line)-1) ]
-    revert = isRevert(line[get['comment']])
+    revert = isRevert(line[get['comment']+1])
     editData.append([week] + parseDiffs(userText) + [revert])
 
 collectWeekData(editData, weeks)

@@ -67,10 +67,10 @@ firstEdit = float('inf')
 lastUser = None
 firstLine = True
 weeks = {}
-#filename = "C:/Users/Susan/Documents/CS341/WikiEditor/subset_test.txt"
-#data = open(filename)
-#for line in data.readlines():
-for line in sys.stdin :
+filename = "C:/Users/Susan/Documents/CS341/WikiEditor/subset_test.txt"
+data = open(filename)
+for line in data.readlines():
+#for line in sys.stdin :
     line = line.strip('\n').split('\t')
 
     # gather article statistics and output
@@ -90,7 +90,7 @@ for line in sys.stdin :
     if weekTimestamp < firstEdit:
         firstEdit = weekTimestamp
     userText = [ line[i] for i in range(get['user_text']+1, len(line)-1) ]
-    revert = isRevert(line[get['comment']])
+    revert = isRevert(line[get['comment']+1])
     editData.append([weekTimestamp] + parseDiffs(userText) + [revert])
 
 collectWeekData(firstEdit, editData, weeks)
@@ -101,4 +101,4 @@ for week in weeks:
     output = [str(week)] + [str(w) for w in weeks[week]]
     print '\t'.join(output), '\n'
 
-#data.close()
+data.close()

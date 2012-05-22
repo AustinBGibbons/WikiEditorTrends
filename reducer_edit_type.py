@@ -88,7 +88,7 @@ for line in sys.stdin :
     if weekTimestamp < firstEdit:
         firstEdit = weekTimestamp
     userText = [ line[i] for i in range(get['user_text']+1, len(line)-1) ]
-    revert = isRevert(line[get['comment']])
+    revert = isRevert(line[get['comment']+1])
     editData.append([weekTimestamp] + parseDiffs(userText) + [revert])
 
 collectWeekData(firstEdit, editData, weeks)
