@@ -5,8 +5,7 @@ SECONDS_PER_WEEK = 60*60*24*7
 
 '''
     @author : susan_biancani
-    outputs tab delimited text: week, summary stats for age of edits in that week
-    summary stats = count, sum, sumsq
+    outputs tab delimited text: age of article, counts of [articles edited, adds, dels],sum and sumsq of [added words, deleted words, net added]
     (Using count, sum, sumsq, you can calculate mean, st dev)
 '''
 def parseDiffs(diffs):
@@ -27,17 +26,24 @@ def parseDiffs(diffs):
             lenDel += len(text)
     return [numAdds, numDels, lenAdd, lenDel]
 
+def isRevert(comment):
+    comment = comment.lower()
+    if comment.find('revert') > -1 or comment.find('revers') >-1:
+        return 1
+    else: return 0
+    
+
 def collectWeekData(firstEdit, editData, weeks):
     """ an entry in weeks is: counts of [articles edited, adds, dels],sum and sumsq of [added words, deleted words, net added]"""
     assert len(editData) > 0 
     assert firstEdit != float('inf')
         
     for edit in editData:
-        week, numAdds, numDels, lenAdd, lenDel = edit
+        week, numAdds, numDels, lenAdd, lenDel, revert = edit
         age = week - firstEdit
         netAdd = lenAdd - lenDel
         if not weeks.has_key(age):
-            weeks[age] = [0.0]*9
+            weeks[age] = [0.0]*10
         weeks[age][0] += 1
         weeks[age][1] += numAdds
         weeks[age][2] += numDels
@@ -47,12 +53,15 @@ def collectWeekData(firstEdit, editData, weeks):
         weeks[age][6] += lenDel*lenDel
         weeks[age][7] += netAdd
         weeks[age][8] += netAdd*netAdd
+        weeks[age][9] += revert
+
          
 # Schema defined at : 
 #https://github.com/whym/RevDiffSearch/blob/master/README.rst
 get = {'rev_id':0, 'page_id':1, 'namespace':2, 'title':3, 'timestamp':4,
 'comment':5, 'minor':6, 'user_id':7, 'user_text':8}
 
+"""This script runs after map_article.py"""
 editData = []
 firstEdit = float('inf')
 lastPage = -1
@@ -79,7 +88,8 @@ for line in sys.stdin :
     if weekTimestamp < firstEdit:
         firstEdit = weekTimestamp
     userText = [ line[i] for i in range(get['user_text']+1, len(line)-1) ]
-    editData.append([weekTimestamp] + parseDiffs(userText))
+    revert = isRevert(line[get['comment']])
+    editData.append([weekTimestamp] + parseDiffs(userText) + [revert])
 
 collectWeekData(firstEdit, editData, weeks)
 

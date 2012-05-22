@@ -28,16 +28,22 @@ def parseDiffs(diffs):
 
     return [numAdds, numDels, lenAdd, lenDel]
 
+def isRevert(comment):
+    comment = comment.lower()
+    if comment.find('revert') > -1 or comment.find('revers') >-1:
+        return 1
+    else: return 0
+
 def collectWeekData(editData, weeks):
     """ an entry in weeks is: counts of [articles edited, adds, dels],sum and sumsq of [added words, deleted words, net added]"""
     assert len(editData) > 0 
         
     for edit in editData:
-        week, numAdds, numDels, lenAdd, lenDel = edit
+        week, numAdds, numDels, lenAdd, lenDel, revert = edit
         #age = week - firstEdit
         netAdd = lenAdd - lenDel
         if not weeks.has_key(week):
-            weeks[week] = [0.0]*9
+            weeks[week] = [0.0]*10
         weeks[week][0] += 1
         weeks[week][1] += numAdds
         weeks[week][2] += numDels
@@ -47,11 +53,11 @@ def collectWeekData(editData, weeks):
         weeks[week][6] += lenDel*lenDel
         weeks[week][7] += netAdd
         weeks[week][8] += netAdd*netAdd
+        weeks[week][9] += revert
          
 # Schema defined at : 
 #https://github.com/whym/RevDiffSearch/blob/master/README.rst
-get = {'rev_id':0, 'page_id':1, 'namespace':2, 'title':3, 'timestamp':4,
-'comment':5, 'minor':6, 'user_id':7, 'user_text':8}
+get = {'rev_id':0, 'page_id':1, 'namespace':2, 'title':3, 'timestamp':4, 'comment':5, 'minor':6, 'user_id':7, 'user_text':8}
 
 editData = []
 #firstEdit = float('inf')
@@ -77,7 +83,8 @@ for line in sys.stdin :
     # collect data on each revision       
     #weekTimestamp = int(line[get['timestamp']+1])/SECONDS_PER_WEEK
     userText = [ line[i] for i in range(get['user_text']+1, len(line)-1) ]
-    editData.append([week] + parseDiffs(userText))
+    revert = isRevert(line[get['comment']])
+    editData.append([week] + parseDiffs(userText) + [revert])
 
 collectWeekData(editData, weeks)
 
