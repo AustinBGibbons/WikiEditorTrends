@@ -14,7 +14,9 @@ def parseDiffs(diffs):
         diffParts = diff.split(':',2) # Don't split into more than 3 parts
         if len(diffParts) != 3: 
             continue
-        text = diffParts[2][2:-1].decode('string_escape').translate(None, '\n*').split(' ')
+        text = diffParts[2][2:-1]
+        #text = diffParts[2][2:-1].decode('string_escape').translate(None, '\n*').split(' ')
+        #text = filter (lambda a: a is not ' ' and a is not '', text)
         #st = text.index("'") + 1
         #en = text.index("'", st)
         #text = text[st, en].translate(None, '\n*').split(' ')
@@ -33,7 +35,7 @@ def isRevert(comment):
     else: return 0
     
 
-def collectWeekData(firstEdit, editData, weeks):
+def collectWeekData(firstEdit, editData, weeks, ages):
     """ an entry in weeks is: counts of [articles edited, adds, dels],sum and sumsq of [added words, deleted words, net added]"""
     assert len(editData) > 0 
     assert firstEdit != float('inf')
@@ -42,18 +44,30 @@ def collectWeekData(firstEdit, editData, weeks):
         week, numAdds, numDels, lenAdd, lenDel, revert = edit
         age = week - firstEdit
         netAdd = lenAdd - lenDel
-        if not weeks.has_key(age):
-            weeks[age] = [0.0]*10
-        weeks[age][0] += 1
-        weeks[age][1] += numAdds
-        weeks[age][2] += numDels
-        weeks[age][3] += lenAdd
-        weeks[age][4] += lenAdd*lenAdd
-        weeks[age][5] += lenDel
-        weeks[age][6] += lenDel*lenDel
-        weeks[age][7] += netAdd
-        weeks[age][8] += netAdd*netAdd
-        weeks[age][9] += revert
+        if not ages.has_key(age):
+            ages[age] = [0.0]*10
+        ages[age][0] += 1
+        ages[age][1] += numAdds
+        ages[age][2] += numDels
+        ages[age][3] += lenAdd
+        ages[age][4] += lenAdd*lenAdd
+        ages[age][5] += lenDel
+        ages[age][6] += lenDel*lenDel
+        ages[age][7] += netAdd
+        ages[age][8] += netAdd*netAdd
+        ages[age][9] += revert
+        if not weeks.has_key(week):
+            weeks[week] = [0.0]*10
+        weeks[week][0] += 1
+        weeks[week][1] += numAdds
+        weeks[week][2] += numDels
+        weeks[week][3] += lenAdd
+        weeks[week][4] += lenAdd*lenAdd
+        weeks[week][5] += lenDel
+        weeks[week][6] += lenDel*lenDel
+        weeks[week][7] += netAdd
+        weeks[week][8] += netAdd*netAdd
+        weeks[week][9] += revert
 
          
 # Schema defined at : 
@@ -66,6 +80,7 @@ editData = []
 firstEdit = float('inf')
 lastPage = -1
 weeks = {}
+ages = {}
 #filename = "C:/Users/Susan/Documents/CS341/WikiEditor/subset_test.txt"
 #data = open(filename)
 #for line in data.readlines():
@@ -78,7 +93,7 @@ for line in sys.stdin :
         if lastPage < 0:
             lastPage = page
         else:
-            collectWeekData(firstEdit, editData, weeks)
+            collectWeekData(firstEdit, editData, weeks, ages)
             lastPage = page
             editData=[]
             firstEdit = float('inf')
@@ -91,12 +106,18 @@ for line in sys.stdin :
     revert = isRevert(line[get['comment']+1])
     editData.append([weekTimestamp] + parseDiffs(userText) + [revert])
 
-collectWeekData(firstEdit, editData, weeks)
+collectWeekData(firstEdit, editData, weeks, ages)
 
 """ an entry in weeks is: counts of [articles edited, edits, adds, dels],sum and sumsq of [added words, deleted words, net added]"""
-
+#out = open("test_results2.txt", 'w')
 for week in weeks:
-    output = [str(week)] + [str(w) for w in weeks[week]]
+    output = ['w' + str(week)] + [str(w) for w in weeks[week]]
     print '\t'.join(output), '\n'
+    #out.write('\t'.join(output) + '\n')
+#out.close()
+for age in ages:
+    output = ['a' + str(age)] + [str(a) for a in ages[age]]
+    print '\t'.join(output), '\n'
+
 
 #data.close()
