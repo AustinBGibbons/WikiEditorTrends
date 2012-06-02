@@ -11,21 +11,32 @@ import gzip, os, sys, urllib2
 # load creation dates
 languages = []
 creation_dates = {}
-for lang_dir in os.listdir('./MetaHistoryCreationDates/'):
-	lang = lang_dir.split('_')[0]
+for lang in os.listdir('./revision-tuples/'):
 	languages.append(lang)
 	print "process language "+lang
-        for line in open('./MetaHistoryCreationDates/'+lang+'_creation', 'r'):
+        for line in open('./revision-tuples/'+lang, 'r'):
 		parts = line.rstrip('\n').split(' ')
-		name = ' '.join(parts[0:-1])
-		creation_dates[(lang, name)] = parts[-1]
+		lang = parts[0]
+		name = urllib2.unquote(parts[1]).strip()
+		t0 = int(parts[2])
+		tEdit = int(parts[3])
+		isBot = int(parts[4])
+		if isBot == 0:
+			continue
+		if (lang, name) not in creation_dates:
+			creation_dates[(lang, name)] = tEdit / 604800
 
 def parsePageviewLine(line):
 	parts = line.split()
 
-	lang = parts[0].split('.')[0]
-	name = urllib2.unquote(parts[1])
-	views = int(parts[2])
+	lang = None
+	name = ''
+	views = 0
+
+	if '.' not in parts[0]:
+		lang = parts[0].split('.')[0]
+		name = urllib2.unquote(parts[1]).strip()
+		views = int(parts[2])
 
 	return lang, name, views
 
@@ -37,6 +48,8 @@ for fd in os.listdir('./pageviews'):
 	views_file = gzip.open('./pageviews/' + fd)
 	for line in views_file:
 		lang, name, views = parsePageviewLine(line)
+		if lang is None:
+			continue
 		if lang not in total_counts:
 			total_counts[lang] = {}
 		if (lang, name) not in creation_dates:
@@ -49,6 +62,7 @@ for fd in os.listdir('./pageviews'):
 		total_counts[lang][creation_date] += views
 		found += views
 	print 'finished: ' , fd
+	break
 
 print 'Found: ', found, 'Missed: ', missed
 print 'Write output files'
@@ -59,6 +73,6 @@ for lang in languages:
 
 	f = open('./views-by-lang/'+lang, 'w')
 	for date in total_counts[lang]:
-		f.write(date+'\t'+str(total_counts[lang][date])+'\n')
+		f.write(str(date)+'\t'+str(total_counts[lang][date])+'\n')
 	f.close()
 	
