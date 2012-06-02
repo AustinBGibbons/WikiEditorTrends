@@ -26,7 +26,7 @@ def processAndOutput(week, firstWeeks):
         avgWeek = float(sum(firstWeeks))/len(firstWeeks)
         stDevWeeks = stDev(firstWeeks, avgWeek)
         
-    output = [ week, str(avgWeek), str(stDevWeeks) ]
+    output = [ str(week), str(avgWeek), str(stDevWeeks) ]
     print '\t'.join(output)
 
 firstWeeks = []
@@ -40,13 +40,13 @@ for line in sys.stdin :
     if lastWeek != week:
         if lastWeek < 0:
             lastWeek = week
-            continue
-        processAndOutput(week, firstWeeks)
-        lastWeek = week
-        firsttWeeks = []
+        else:
+            processAndOutput(lastWeek, firstWeeks)
+            lastWeek = week
+            firsttWeeks = []
 
     # collect edit time for a revision
     firstWeeks.append(int(line[get['first_week']] ))
     #firstWeeks.append(int(line[get['first_week']+1] ))
     
-
+processAndOutput(lastWeek, firstWeeks)
