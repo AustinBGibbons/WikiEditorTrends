@@ -25,12 +25,12 @@ for line in sys.stdin:
 	if date not in total_counts[lang]:
 		total_counts[lang][date] = 0
 
-	total_count[lang][date] += views	
+	total_counts[lang][date] += views	
 
 for lang in languages:
 	if lang not in total_counts:
 		continue
 
 	for date in total_counts[lang]:
-		print lang+'\t'+str(date)+'\t'+str(total_counts[lang][date])+'\n'
+		print lang+'\t'+str(date)+'\t'+str(total_counts[lang][date])
 	

@@ -62,5 +62,5 @@ for lang in languages:
 	if lang not in total_counts:
 		continue
 	for date in total_counts[lang]:
-		print lang+'\t'+str(date)+'\t'+str(total_counts[lang][date])+'\n'
+		print lang+'\t'+str(date)+'\t'+str(total_counts[lang][date])
 
