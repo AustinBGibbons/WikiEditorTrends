@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import sys, gzip, calendar, datetime
+import sys, gzip, calendar, datetime, urllib2
 
 def parse(time) :
 	return datetime.datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ").utctimetuple()
@@ -14,6 +14,7 @@ firstFlag = True
 user = True
 startTime = -1
 lang = ''
+title = ''
 firstLine = True
 for line in sys.stdin :
 	line = line.rstrip('\n')
@@ -31,10 +32,14 @@ for line in sys.stdin :
 			firstFlag = False
 			#if time not in year : year[time] = 0
 			time_0 = time
+	if '<title>' in line:
+		start = line.find('>') + 1
+		end = line.rfind('<')
+		title = urllib2.quote(line[start:end])
 	if '</revision>' in line :
-		print lang, time_0, time, 1 if user else 0
+		print lang, title, time_0, time, 1 if user else 0
 		user = True
-	if 'bot' in line.lower() and ('<username>' in line or '<comment>' in line) :
+	if 'bot' in line.lower() and ('<username>' in line) :
 		user = False
 	if '</page>' in line :
 		firstFlag = True
