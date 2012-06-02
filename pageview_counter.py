@@ -1,65 +1,64 @@
-import gzip, os, sys
+import gzip, os, sys, urllib2
 
 '''
-	@author gibbons4
+	@author gibbons4, dvetrano
 	May 11, 2012
 	Finds the month, year an article was created
 	Counts pageviews per month.
 	prints hash screen in ugly format
 '''
 
-#20011011201847
-def getDate(ts) :
-	ym = int(ts) / 100000000
-	return ym/100, ym %100
-
-view_counts = open('../en_created_cats.tab', 'r')
-#Title -> Creation_Dates
+# load creation dates
+languages = []
 creation_dates = {}
-creation_counts = {}
-flag = 1
-for line in view_counts :
-	if flag is 1 :
-		flag = 0
-		continue
-	line = line.strip('\n')
-	line = line.split('\t')
-	year, month = getDate(line[1])
-	creation_dates[line[0]] = str(year) + str(month)
-	if year not in creation_counts :
-		creation_counts[year] = 0
-	creation_counts[year] += 1
+for lang_dir in os.listdir('./MetaHistoryCreationDates/'):
+	lang = lang_dir.split('_')[0]
+	languages.append(lang)
+	print "process language "+lang
+        for line in open('./MetaHistoryCreationDates/'+lang+'_creation', 'r'):
+		parts = line.rstrip('\n').split(' ')
+		name = ' '.join(parts[0:-1])
+		creation_dates[(lang, name)] = parts[-1]
 
-for k in creation_counts :
-	print k, creation_counts[k]
-sys.exit()
+def parsePageviewLine(line):
+	parts = line.split()
 
-all_gzipped_files = os.listdir('../pageviews')
+	lang = parts[0].split('.')[0]
+	name = urllib2.unquote(parts[1])
+	views = int(parts[2])
 
-def getName(line) :
-	line = line.strip('\n')
-	line = line.split()
-	index = line[1].rfind('/')
-	#print line[1], index
-	if index != -1 : return line[1][index:], line[2]
-	return line[1], int(line[2])
+	return lang, name, views
 
 total_counts = {}
 found = 0
 missed = 0
-for fd in all_gzipped_files :
-	print 'started: ' , fd
-	views_file = gzip.open('../pageviews/' + fd)
-	for line in views_file :
-		#print line.rstrip('\n')
-		name, views = getName(line)
-		if name in creation_dates : 
-			if creation_dates[name] not in total_counts : total_counts[creation_dates[name]] = 0
-			total_counts[creation_dates[name]] += int(views)
-			found += int(views)
-		else :
-			missed += int(views)
+for fd in os.listdir('./pageviews'):
+	print 'started: ', fd
+	views_file = gzip.open('./pageviews/' + fd)
+	for line in views_file:
+		lang, name, views = parsePageviewLine(line)
+		if lang not in total_counts:
+			total_counts[lang] = {}
+		if (lang, name) not in creation_dates:
+			missed += views
+			continue
+		creation_date = creation_dates[(lang, name)]
+		if creation_date not in total_counts[lang]:
+			total_counts[lang][creation_date] = 0
+		
+		total_counts[lang][creation_date] += views
+		found += views
 	print 'finished: ' , fd
 
-print found, missed
-print total_counts
+print 'Found: ', found, 'Missed: ', missed
+print 'Write output files'
+
+for lang in languages:
+	if lang not in total_counts:
+		continue
+
+	f = open('./views-by-lang/'+lang, 'w')
+	for date in total_counts[lang]:
+		f.write(date+'\t'+str(total_counts[lang][date])+'\n')
+	f.close()
+	
