@@ -1,66 +1,66 @@
-#!/usr/bin/python
-import gzip, os, sys
+import gzip, os, sys, urllib2
 
 '''
-	@author gibbons4
+	@author gibbons4, dvetrano
 	May 11, 2012
-	
-	Sends a (year-month, count) to reducer
+	Finds the month, year an article was created
+	Counts pageviews per month.
+	prints hash screen in ugly format
 '''
 
-#20011011201847
-def getDate(ts) :
-	ym = int(ts) / 100000000
-	return ym/100, ym %100
-
-view_counts = open('cats', 'r')
-
-#Title -> Creation_Dates
+# load creation dates
+languages = []
 creation_dates = {}
-flag = -1
-for line in view_counts :
-	if flag is -1 :
-		flag = 0
-		continue
-	line = line.strip('\n')
-	line = line.split('\t')
-	year, month = getDate(line[1])
-	creation_dates[line[0]] = str(year) + str(month)
-	if (flag < 5) :
-		flag += 1
-		print >> sys.stderr, 'flag', line[0], creation_dates[line[0]]
+for lang in os.listdir('./revision-tuples/'):
+	languages.append(lang)
+	for line in open('./revision-tuples/'+lang, 'r'):
+		parts = line.rstrip('\n').split(' ')
+		lang = parts[0]
+		name = urllib2.unquote(parts[1]).strip()
+		t0 = int(parts[2])
+		tEdit = int(parts[3])
+		isBot = int(parts[4])
+		if isBot == 0:
+			continue
+		if (lang, name) not in creation_dates:
+			creation_dates[(lang, name)] = tEdit / 604800
 
-#all_gzipped_files = os.listdir('../pageviews')
+def parsePageviewLine(line):
+	parts = line.split()
 
-def getName(line) :
-	line = line.rstrip('\n')
-	line = line.split()
-	index = line[1].rfind('/')
-	#print line[1], index
-	if index != -1 : return line[1][index:], line[2]
-	if type(line[2]) is not int: return line[1], line[2]
-	return line[1], int(line[2])
+	lang = None
+	name = ''
+	views = 0
+
+	if '.' not in parts[0]:
+		lang = parts[0].split('.')[0]
+		name = urllib2.unquote(parts[1]).strip()
+		views = int(parts[2])
+
+	return lang, name, views
 
 total_counts = {}
 found = 0
 missed = 0
-#for fd in all_gzipped_files :
-#	print 'started: ' , fd
-#	views_file = gzip.open('../pageviews/' + fd)
-#	for line in views_file :
-		#print line.rstrip('\n')
-for line in sys.stdin :
-	name, views = getName(line)
-	if name in creation_dates : 
-		if creation_dates[name] not in total_counts : total_counts[creation_dates[name]] = 0
-		total_counts[creation_dates[name]] += int(views)
-	#	found += int(views)
-	#else :
-	#	missed += int(views)
+for line in sys.stdin:
+	lang, name, views = parsePageviewLine(line)
+	if lang is None:
+		continue
+	if lang not in total_counts:
+		total_counts[lang] = {}
+	if (lang, name) not in creation_dates:
+		missed += views
+		continue
+	creation_date = creation_dates[(lang, name)]
+	if creation_date not in total_counts[lang]:
+		total_counts[lang][creation_date] = 0
+	
+	total_counts[lang][creation_date] += views
+	found += views
 
-print >> sys.stderr, 'success!'
-
-for k in total_counts :
-	print >> sys.stderr, 'Sent to reducer:', str(k) + '\t' + str(total_counts[k])
-	print str(k) + '\t' + str(total_counts[k])
+for lang in languages:
+	if lang not in total_counts:
+		continue
+	for date in total_counts[lang]:
+		print lang+'\t'+str(date)+'\t'+str(total_counts[lang][date])+'\n'
 

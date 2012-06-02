@@ -1,17 +1,36 @@
-#!/usr/bin/python
-import sys
+import gzip, os, sys, urllib2
 
-summed = 0
-key = -1
-#year-month, <count>
-for line in sys.stdin :
-	line  = line.rstrip('\n')
-	line = line.split('\t')
-	if key != line[0] :
-		if key != -1 : print key, summed
-		key = line[0]
-		summed = 0
-	for i in range(1, len(line)) :
-		summed += int(line[i])
+'''
+	@author gibbons4, dvetrano
+	May 11, 2012
+	Finds the month, year an article was created
+	Counts pageviews per month.
+	prints hash screen in ugly format
+'''
 
-print key, summed
+languages = []
+total_counts = {}
+
+for line in sys.stdin:
+	parts = line.rstrip('\n').split('\t')
+
+	lang = parts[0]
+	date = parts[1]
+	views = int(parts[2])
+
+	if lang not in total_counts:
+		languages.append(lang)
+		total_counts[lang] = {}
+
+	if date not in total_counts[lang]:
+		total_counts[lang][date] = 0
+
+	total_count[lang][date] += views	
+
+for lang in languages:
+	if lang not in total_counts:
+		continue
+
+	for date in total_counts[lang]:
+		print lang+'\t'+str(date)+'\t'+str(total_counts[lang][date])+'\n'
+	
