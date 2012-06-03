@@ -11,19 +11,17 @@ import gzip, os, sys, urllib2
 # load creation dates
 languages = []
 creation_dates = {}
-for lang in os.listdir('./revision-tuples/'):
-	languages.append(lang)
-	for line in open('./revision-tuples/'+lang, 'r'):
-		parts = line.rstrip('\n').split(' ')
-		lang = parts[0]
-		name = urllib2.unquote(parts[1]).strip()
-		t0 = int(parts[2])
-		tEdit = int(parts[3])
-		isBot = int(parts[4])
-		if isBot == 0:
-			continue
-		if (lang, name) not in creation_dates:
-			creation_dates[(lang, name)] = tEdit / 604800
+for line in open('./revision-tuples', 'r'):
+	parts = line.rstrip('\n').split(' ')
+	lang = parts[0]
+	name = urllib2.unquote(parts[1]).strip()
+	t0 = int(parts[2])
+	tEdit = int(parts[3])
+	isBot = int(parts[4])
+	if isBot == 0:
+		continue
+	if (lang, name) not in creation_dates:
+		creation_dates[(lang, name)] = tEdit / 604800
 
 def parsePageviewLine(line):
 	parts = line.split()
@@ -46,6 +44,8 @@ for line in sys.stdin:
 	lang, name, views = parsePageviewLine(line)
 	if lang is None:
 		continue
+	if lang not in languages:
+		languages.append(lang)
 	if lang not in total_counts:
 		total_counts[lang] = {}
 	if (lang, name) not in creation_dates:
