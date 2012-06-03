@@ -1,24 +1,16 @@
-import gzip, os, sys, urllib2
-
-'''
-	@author gibbons4, dvetrano
-	May 11, 2012
-	Finds the month, year an article was created
-	Counts pageviews per month.
-	prints hash screen in ugly format
-'''
+import sys, urllib2
 
 # load creation dates
 languages = []
 creation_dates = {}
-for line in open('./revision-tuples', 'r'):
+for line in open('./revision-tuples/co', 'r'):
 	parts = line.rstrip('\n').split(' ')
 	lang = parts[0]
 	name = urllib2.unquote(parts[1]).strip()
 	t0 = int(parts[2])
 	tEdit = int(parts[3])
-	isBot = int(parts[4])
-	if isBot == 0:
+	isUser = int(parts[4])
+	if isUser == 0:
 		continue
 	if (lang, name) not in creation_dates:
 		creation_dates[(lang, name)] = tEdit / 604800

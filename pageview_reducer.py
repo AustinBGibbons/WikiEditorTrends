@@ -1,4 +1,4 @@
-import gzip, os, sys, urllib2
+import sys
 
 '''
 	@author gibbons4, dvetrano

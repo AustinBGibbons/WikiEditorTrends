@@ -24,5 +24,19 @@ echo "push files to s3"
 s3cmd put *.py s3://mr-code-wiki/
 
 echo "launch emr job"
-/home/ubuntu/emr/elastic-mapreduce --create --name "user-$1" --stream --input s3://pageviews-wiki/ --output "s3://language-output/output-$1/" --mapper s3://mr-code-wiki/$3 --reducer s3://mr-code-wiki/$4 --cache "s3://language-output/dataset-names.tsv#revision-tuples" --num-instances "$2" --master-instance-type "c1.medium"  --slave-instance-type "m1.xlarge" --enable-debugging
+/home/ubuntu/emr/elastic-mapreduce --create --name "user-$1" --stream \
+  --input s3://pageviews-wiki/ \
+  --output "s3://language-output/output-$1/" \
+  --mapper s3://mr-code-wiki/$3 \
+  --reducer s3://mr-code-wiki/$4 \
+  --cache "s3://language-output/dataset-names.tsv#revision-tuples" \
+  --jobconf mapred.map.tasks=8 \
+  --jobconf mapred.map.max.attempts=1 \
+  --jobconf mapred.reduce.tasks=4 \
+  --jobconf mapred.reduce.max.attempts=2 \
+  --jobconf mapred.task.timeout=5400000 \
+  --num-instances "$2" \
+  --master-instance-type "c1.medium" \
+  --slave-instance-type "m1.xlarge" \
+  --enable-debugging
 
